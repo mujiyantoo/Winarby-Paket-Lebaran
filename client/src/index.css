@@ -2,30 +2,118 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Base ─────────────────────────────────────── */
 @layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+
+  html { -webkit-font-smoothing: antialiased; }
+
   body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-cream-100 text-brown-700 font-sans;
+    min-height: 100vh;
   }
+
+  ::-webkit-scrollbar       { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { @apply bg-gold-300/50 rounded-full; }
 }
 
+/* ── Component classes ────────────────────────── */
 @layer components {
-  .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
-  }
-  
-  .btn-primary {
-    @apply bg-primary-600 text-white hover:bg-primary-700;
-  }
-  
-  .btn-secondary {
-    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
-  }
-  
+
+  /* Inputs */
   .input {
-    @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none;
+    @apply w-full h-12 px-4 bg-white border border-gold-300/40 rounded-xl
+           text-brown-700 placeholder-brown-100 font-sans text-sm
+           outline-none transition-all duration-200;
   }
-  
+  .input:focus {
+    @apply border-gold-400 ring-2 ring-gold-400/20;
+  }
+  .input-icon-left  { @apply pl-11; }
+  .input-label      { @apply block text-[11px] font-medium tracking-[.07em] uppercase text-brown-300 mb-1.5; }
+  .input-error      { @apply border-red-300 ring-2 ring-red-300/20; }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-5 h-10
+           rounded-xl font-medium text-sm transition-all duration-200
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply btn bg-gold-btn text-white shadow-gold
+           hover:-translate-y-0.5 hover:shadow-gold-lg active:translate-y-0;
+  }
+  .btn-secondary {
+    @apply btn border border-gold-300/50 text-brown-700
+           hover:bg-gold-100/70 active:bg-gold-100;
+  }
+  .btn-danger {
+    @apply btn bg-red-500 text-white hover:bg-red-600;
+  }
+  .btn-ghost {
+    @apply btn text-brown-300 hover:bg-cream-200 hover:text-brown-700;
+  }
+
+  /* Card */
   .card {
-    @apply bg-white rounded-xl shadow-lg p-6;
+    @apply bg-cream-50 rounded-2xl shadow-card border border-gold-200/30 p-5;
   }
+
+  /* Badge */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium;
+  }
+  .badge-gold    { @apply badge bg-gold-100 text-gold-700; }
+  .badge-green   { @apply badge bg-emerald-50 text-emerald-700; }
+  .badge-red     { @apply badge bg-red-50 text-red-700; }
+  .badge-gray    { @apply badge bg-cream-200 text-brown-300; }
+
+  /* Table */
+  .tbl           { @apply w-full text-sm; }
+  .tbl thead th  { @apply px-4 py-3 text-left text-[11px] font-medium tracking-wider uppercase text-brown-300 bg-cream-100 first:rounded-tl-xl last:rounded-tr-xl; }
+  .tbl tbody tr  { @apply border-t border-gold-200/30 hover:bg-gold-100/30 transition-colors; }
+  .tbl tbody td  { @apply px-4 py-3 text-brown-700; }
+
+  /* Page header */
+  .page-header   { @apply mb-7; }
+  .page-title    { @apply font-display text-2xl font-semibold text-brown-700; }
+  .page-sub      { @apply text-sm text-brown-300 mt-0.5; }
+}
+
+/* ── Utility ──────────────────────────────────── */
+@layer utilities {
+  .diamond-bg {
+    background-image:
+      repeating-linear-gradient( 45deg, transparent, transparent 30px, rgba(201,151,58,.10) 30px, rgba(201,151,58,.10) 31px),
+      repeating-linear-gradient(-45deg, transparent, transparent 30px, rgba(201,151,58,.10) 30px, rgba(201,151,58,.10) 31px);
+  }
+  .btn-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -110%;
+    width: 55%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+    transform: skewX(-22deg);
+    transition: left .65s;
+  }
+  .btn-shimmer:hover::before { left: 160%; }
+
+  .stagger-1 { animation-delay: .08s; }
+  .stagger-2 { animation-delay: .14s; }
+  .stagger-3 { animation-delay: .20s; }
+  .stagger-4 { animation-delay: .26s; }
+  .stagger-5 { animation-delay: .32s; }
+  .stagger-6 { animation-delay: .38s; }
+}
+
+/* ── Print ────────────────────────────────────── */
+@media print {
+  .no-print { display: none !important; }
+  body       { background: white; }
+  .card      { box-shadow: none; border: 1px solid #eee; }
 }

@@ -52,7 +52,7 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-cream-100">
         <Navbar isAuthenticated={isAuthenticated} user={user} onLogout={handleLogout} />
         
         <main className="container mx-auto px-4 py-8">
@@ -100,9 +100,9 @@ function App() {
           </Routes>
         </main>
         
-        <footer className="bg-white border-t py-6">
-          <div className="container mx-auto px-4 text-center text-gray-600">
-            <p>Full-Stack React App with JWT Authentication & MongoDB</p>
+        <footer className="bg-cream-50 border-t border-gold-200/40 py-6">
+          <div className="container mx-auto px-4 text-center text-brown-300">
+            <p>Pilar - Paket Lebaran Management System</p>
             <p className="text-sm mt-2">Backend: Node.js + Express | Frontend: React + Tailwind CSS</p>
           </div>
         </footer>
