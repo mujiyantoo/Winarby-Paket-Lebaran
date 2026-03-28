@@ -128,7 +128,7 @@ export default function Pembayaran() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 animate-rise-in">
       <div className="page-header flex items-start justify-between gap-4">
         <div>
           <h1 className="page-title">Pembayaran</h1>
@@ -179,8 +179,8 @@ export default function Pembayaran() {
                   </td>
                 </tr>
               )}
-              {filtered.map(p => (
-                <tr key={p._id}>
+              {filtered.map((p, i) => (
+                <tr key={p._id} className={`stagger-${(i % 6) + 1} animate-rise-in`}>
                   <td className="font-medium text-sm">{p.anggota?.nama ?? '—'}</td>
                   <td className="text-sm text-brown-500">{p.paket?.nama ?? '—'}</td>
                   <td className="font-semibold text-gold-600">{rupiah(p.jumlah)}</td>

@@ -96,7 +96,7 @@ export default function Anggota() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 animate-rise-in">
       <div className="page-header flex items-start justify-between gap-4">
         <div>
           <h1 className="page-title">Anggota</h1>
@@ -145,8 +145,8 @@ export default function Anggota() {
                   </td>
                 </tr>
               )}
-              {filtered.map(a => (
-                <tr key={a._id}>
+              {filtered.map((a, i) => (
+                <tr key={a._id} className={`stagger-${(i % 6) + 1} animate-rise-in`}>
                   <td className="font-medium">{a.nama}</td>
                   <td className="text-sm text-brown-300">{a.telepon}</td>
                   <td className="text-sm text-brown-300">{tgl(a.bergabung)}</td>

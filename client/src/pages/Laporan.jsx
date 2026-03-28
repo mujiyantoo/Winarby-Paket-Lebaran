@@ -75,7 +75,7 @@ export default function Laporan() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-5 animate-rise-in">
       <div className="page-header flex items-start justify-between gap-4">
         <div>
           <h1 className="page-title">Laporan</h1>
@@ -112,7 +112,7 @@ export default function Laporan() {
             sub: `${(ring.totalAnggota ?? 0) - (ring.jumlahLunas ?? 0)} belum lunas`
           }
         ].map((s, i) => (
-          <div key={i} className="card">
+          <div key={i} className={`card stagger-${i + 1} animate-rise-in`}>
             <p className="text-[11px] uppercase tracking-wider text-brown-300 font-medium mb-1">
               {s.label}
             </p>
