@@ -1,208 +1,221 @@
-import { useState, useEffect } from 'react';
-import { authAPI } from '../api/auth';
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { authAPI } from '../api/auth'
+import {
+  LayoutDashboard, Users, Package, CreditCard, FileText,
+  PiggyBank, TrendingUp, ArrowRight, CalendarDays, RefreshCw
+} from 'lucide-react'
 
 const Dashboard = ({ user }) => {
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [profile, setProfile] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await authAPI.getProfile();
-        setProfile(response.user);
+        const response = await authAPI.getProfile()
+        setProfile(response.user)
       } catch (err) {
-        console.error('Failed to fetch profile:', err);
-        setError('Failed to load profile information.');
+        console.error('Failed to fetch profile:', err)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-
-    fetchProfile();
-  }, []);
-
-  const handleRefreshProfile = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const response = await authAPI.getProfile();
-      setProfile(response.user);
-      alert('Profile refreshed successfully!');
-    } catch (err) {
-      console.error('Failed to refresh profile:', err);
-      setError('Failed to refresh profile.');
-    } finally {
-      setLoading(false);
     }
-  };
+    fetchProfile()
+  }, [])
 
-  const userData = profile || user;
+  const userData = profile || user
+
+  // Mock summary data
+  const ringkasan = {
+    totalAnggota: 48,
+    totalPaket: 5,
+    totalTarget: 36000000,
+    totalTerkumpul: 21500000,
+    totalBebas: 3250000,
+    lunas: 12,
+    belumLunas: 36,
+  }
+
+  const recentPayments = [
+    { id: 1, nama: 'Budi Santoso', paket: 'Paket Gold', jumlah: 250000, tanggal: '2026-03-28', metode: 'transfer' },
+    { id: 2, nama: 'Siti Rahayu', paket: 'Paket Silver', jumlah: 100000, tanggal: '2026-03-27', metode: 'tunai' },
+    { id: 3, nama: 'Ahmad Wijaya', paket: 'Paket Platinum', jumlah: 500000, tanggal: '2026-03-26', metode: 'transfer' },
+    { id: 4, nama: 'Dewi Lestari', paket: 'Nabung Bebas', jumlah: 75000, tanggal: '2026-03-25', metode: 'tunai' },
+    { id: 5, nama: 'Eko Prasetyo', paket: 'Paket Gold', jumlah: 250000, tanggal: '2026-03-24', metode: 'transfer' },
+  ]
+
+  const rupiah = (n) =>
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n)
+
+  const tgl = (d) =>
+    new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+
+  const pctCollected = Math.round((ringkasan.totalTerkumpul / ringkasan.totalTarget) * 100)
+
+  const statCards = [
+    { label: 'Total Anggota', value: ringkasan.totalAnggota, sub: 'orang terdaftar', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
+    { label: 'Paket Tersedia', value: ringkasan.totalPaket, sub: 'jenis paket', icon: Package, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+    { label: 'Total Terkumpul', value: rupiah(ringkasan.totalTerkumpul), sub: `${pctCollected}% dari target`, icon: TrendingUp, color: 'text-gold-600', bg: 'bg-gold-100' },
+    { label: 'Nabung Bebas', value: rupiah(ringkasan.totalBebas), sub: 'tabungan bebas', icon: PiggyBank, color: 'text-purple-600', bg: 'bg-purple-50' },
+  ]
+
+  const quickLinks = [
+    { label: 'Anggota', desc: 'Kelola data anggota', icon: Users, to: '/anggota', color: 'text-blue-600' },
+    { label: 'Paket', desc: 'Atur paket lebaran', icon: Package, to: '/paket', color: 'text-emerald-600' },
+    { label: 'Pembayaran', desc: 'Catat pembayaran', icon: CreditCard, to: '/pembayaran', color: 'text-gold-600' },
+    { label: 'Nabung Bebas', desc: 'Tabungan bebas', icon: PiggyBank, to: '/nabung-bebas', color: 'text-purple-600' },
+    { label: 'Laporan', desc: 'Lihat rekap laporan', icon: FileText, to: '/laporan', color: 'text-red-500' },
+  ]
+
+  const greeting = () => {
+    const h = new Date().getHours()
+    if (h < 12) return 'Selamat Pagi'
+    if (h < 15) return 'Selamat Siang'
+    if (h < 18) return 'Selamat Sore'
+    return 'Selamat Malam'
+  }
 
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
-        <p className="text-gray-600 mt-2">Welcome to your personal dashboard</p>
+    <div className="space-y-6 animate-rise-in">
+      {/* Hero greeting */}
+      <div className="card bg-gradient-to-br from-cream-50 via-gold-100/60 to-cream-200 border-gold-200/50">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <p className="text-sm text-brown-300 font-medium flex items-center gap-1.5">
+              <LayoutDashboard size={14} />
+              Dashboard
+            </p>
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-brown-700 mt-1">
+              {greeting()}, {userData?.name?.split(' ')[0] || 'User'} 👋
+            </h1>
+            <p className="text-brown-300 mt-1 text-sm">
+              Berikut ringkasan data Paket Lebaran hari ini
+            </p>
+          </div>
+          <div className="text-right hidden sm:block">
+            <p className="text-xs text-brown-100 uppercase tracking-wider font-medium">Hari ini</p>
+            <p className="font-display text-lg font-semibold text-brown-700">
+              {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </p>
+          </div>
+        </div>
       </div>
 
-      {loading && (
-        <div className="card mb-6">
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            <span className="ml-3 text-gray-600">Loading profile...</span>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {statCards.map((s, i) => (
+          <div key={i} className={`card hover:-translate-y-0.5 transition-transform duration-200 stagger-${i + 1} animate-rise-in`}>
+            <div className="flex items-start justify-between mb-3">
+              <p className="text-[11px] uppercase tracking-wider text-brown-300 font-medium">{s.label}</p>
+              <div className={`w-8 h-8 rounded-lg ${s.bg} flex items-center justify-center flex-shrink-0`}>
+                <s.icon size={16} className={s.color} />
+              </div>
+            </div>
+            <p className="font-display text-xl font-semibold text-brown-700 leading-tight">{s.value}</p>
+            <p className="text-xs text-brown-100 mt-0.5">{s.sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Target progress */}
+      <div className="card">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="font-display text-lg font-semibold text-brown-700">Progress Target</h2>
+            <p className="text-sm text-brown-300 mt-0.5">
+              {rupiah(ringkasan.totalTerkumpul)} dari {rupiah(ringkasan.totalTarget)}
+            </p>
+          </div>
+          <div className="text-right">
+            <span className="badge-gold text-sm font-semibold">{pctCollected}%</span>
           </div>
         </div>
-      )}
-
-      {error && (
-        <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg">
-          {error}
+        <div className="w-full h-3 bg-cream-200 rounded-full overflow-hidden">
+          <div
+            className="h-full rounded-full bg-gold-btn transition-all duration-700 ease-out"
+            style={{ width: `${pctCollected}%` }}
+          />
         </div>
-      )}
+        <div className="flex justify-between mt-2 text-xs text-brown-100">
+          <span>{ringkasan.lunas} anggota lunas</span>
+          <span>{ringkasan.belumLunas} belum lunas</span>
+        </div>
+      </div>
 
-      {userData && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* User Profile Card */}
-          <div className="card md:col-span-2">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">User Profile</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Full Name</label>
-                <p className="mt-1 text-lg text-gray-800">{userData.name}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Email Address</label>
-                <p className="mt-1 text-lg text-gray-800">{userData.email}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">User ID</label>
-                <p className="mt-1 text-sm font-mono text-gray-600 bg-gray-50 p-2 rounded">
-                  {userData.id}
-                </p>
-              </div>
-              {userData.createdAt && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-500">Member Since</label>
-                  <p className="mt-1 text-gray-700">
-                    {new Date(userData.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </p>
-                </div>
-              )}
-            </div>
-            
-            <div className="mt-6 pt-6 border-t">
-              <button
-                onClick={handleRefreshProfile}
-                disabled={loading}
-                className="btn btn-secondary"
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent Payments */}
+        <div className="lg:col-span-2 card !p-0 overflow-hidden">
+          <div className="px-5 py-4 border-b border-gold-200/30 flex items-center justify-between">
+            <h2 className="font-display text-lg font-semibold text-brown-700">Pembayaran Terakhir</h2>
+            <Link to="/pembayaran" className="text-xs text-gold-600 hover:text-gold-700 font-medium flex items-center gap-1">
+              Lihat Semua <ArrowRight size={12} />
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="tbl">
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>Paket</th>
+                  <th>Jumlah</th>
+                  <th>Tanggal</th>
+                  <th>Metode</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={5} className="text-center py-8 text-brown-100">
+                      <RefreshCw size={18} className="mx-auto mb-2 animate-spin opacity-40" />
+                      Memuat data…
+                    </td>
+                  </tr>
+                ) : (
+                  recentPayments.map(p => (
+                    <tr key={p.id}>
+                      <td className="font-medium text-sm">{p.nama}</td>
+                      <td className="text-sm text-brown-300">{p.paket}</td>
+                      <td className="font-semibold text-gold-600 text-sm">{rupiah(p.jumlah)}</td>
+                      <td className="text-sm text-brown-300">{tgl(p.tanggal)}</td>
+                      <td>
+                        <span className={p.metode === 'transfer' ? 'badge bg-blue-50 text-blue-600' : 'badge-gray'}>
+                          {p.metode}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Quick Links */}
+        <div className="card">
+          <h2 className="font-display text-lg font-semibold text-brown-700 mb-4">Menu Cepat</h2>
+          <div className="space-y-2">
+            {quickLinks.map((link, i) => (
+              <Link
+                key={i}
+                to={link.to}
+                className="flex items-center gap-3 p-3 rounded-xl hover:bg-cream-200/60 transition-colors group"
               >
-                {loading ? 'Refreshing...' : 'Refresh Profile'}
-              </button>
-            </div>
-          </div>
-
-          {/* Token Information Card */}
-          <div className="card">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Authentication Status</h2>
-            <div className="space-y-4">
-              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                <div className="flex items-center">
-                  <svg className="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  <span className="font-medium text-green-800">Authenticated</span>
+                <div className="w-9 h-9 rounded-lg bg-cream-200 flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform">
+                  <link.icon size={16} className={link.color} />
                 </div>
-                <p className="text-sm text-green-700 mt-1">JWT token is valid and stored in localStorage</p>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">JWT Token Status</label>
-                <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-sm text-gray-600">
-                    Token is {authAPI.isAuthenticated() ? 'present' : 'missing'} in localStorage
-                  </p>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-brown-700">{link.label}</p>
+                  <p className="text-xs text-brown-100">{link.desc}</p>
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-500 mb-2">API Endpoint Test</label>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">
-                    Protected route <code className="text-xs bg-gray-100 px-2 py-1 rounded">/api/auth/profile</code> is accessible
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Health check <code className="text-xs bg-gray-100 px-2 py-1 rounded">/api/health</code> is working
-                  </p>
-                </div>
-              </div>
-            </div>
+                <ArrowRight size={14} className="text-brown-100 group-hover:text-brown-300 transition-colors flex-shrink-0" />
+              </Link>
+            ))}
           </div>
-
-          {/* Application Information Card */}
-          <div className="card md:col-span-3">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Application Information</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-4 bg-blue-50 rounded-lg">
-                <h3 className="font-medium text-blue-800 mb-2">Frontend</h3>
-                <ul className="text-sm text-blue-700 space-y-1">
-                  <li>React 18 + Vite</li>
-                  <li>Tailwind CSS</li>
-                  <li>React Router DOM</li>
-                  <li>Axios for API calls</li>
-                </ul>
-              </div>
-              
-              <div className="p-4 bg-green-50 rounded-lg">
-                <h3 className="font-medium text-green-800 mb-2">Backend</h3>
-                <ul className="text-sm text-green-700 space-y-1">
-                  <li>Node.js + Express</li>
-                  <li>MongoDB + Mongoose</li>
-                  <li>JWT Authentication</li>
-                  <li>bcryptjs for password hashing</li>
-                </ul>
-              </div>
-              
-              <div className="p-4 bg-purple-50 rounded-lg">
-                <h3 className="font-medium text-purple-800 mb-2">Features</h3>
-                <ul className="text-sm text-purple-700 space-y-1">
-                  <li>User Registration & Login</li>
-                  <li>Protected Routes</li>
-                  <li>Token-based Auth</li>
-                  <li>Profile Management</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Instructions */}
-      <div className="mt-8 card">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Next Steps</h2>
-        <div className="space-y-3">
-          <p className="text-gray-700">
-            This full-stack application demonstrates:
-          </p>
-          <ul className="list-disc pl-5 text-gray-600 space-y-2">
-            <li>Complete authentication flow with JWT</li>
-            <li>Secure password storage using bcrypt</li>
-            <li>Protected API endpoints with middleware</li>
-            <li>Token storage in localStorage</li>
-            <li>MongoDB Atlas integration</li>
-            <li>Responsive UI with Tailwind CSS</li>
-          </ul>
-          <p className="text-sm text-gray-500 mt-4">
-            You can explore the code in the <code className="bg-gray-100 px-2 py-1 rounded">server</code> and <code className="bg-gray-100 px-2 py-1 rounded">client</code> directories.
-          </p>
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Dashboard;
+export default Dashboard
