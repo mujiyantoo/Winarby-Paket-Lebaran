@@ -215,6 +215,7 @@ export default function Anggota() {
                 </button>
               </div>
             </div>
+          </div>
         </div>
       )}
 
