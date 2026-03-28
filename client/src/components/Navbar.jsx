@@ -36,10 +36,28 @@ const Navbar = ({ isAuthenticated, user, onLogout }) => {
                     Dashboard
                   </Link>
                   <Link
+                    to="/anggota"
+                    className="text-brown-300 hover:text-brown-700 transition-colors"
+                  >
+                    Anggota
+                  </Link>
+                  <Link
                     to="/paket"
                     className="text-brown-300 hover:text-brown-700 transition-colors"
                   >
                     Paket
+                  </Link>
+                  <Link
+                    to="/pembayaran"
+                    className="text-brown-300 hover:text-brown-700 transition-colors"
+                  >
+                    Pembayaran
+                  </Link>
+                  <Link
+                    to="/laporan"
+                    className="text-brown-300 hover:text-brown-700 transition-colors"
+                  >
+                    Laporan
                   </Link>
                   <button
                     onClick={onLogout}

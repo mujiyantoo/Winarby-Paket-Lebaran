@@ -5,6 +5,9 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import PaketPage from './pages/PaketPage';
+import Anggota from './pages/Anggota';
+import Pembayaran from './pages/Pembayaran';
+import Laporan from './pages/Laporan';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -94,6 +97,30 @@ function App() {
               element={
                 isAuthenticated ? 
                 <PaketPage /> : 
+                <Navigate to="/login" replace />
+              } 
+            />
+            <Route 
+              path="/anggota" 
+              element={
+                isAuthenticated ? 
+                <Anggota /> : 
+                <Navigate to="/login" replace />
+              } 
+            />
+            <Route 
+              path="/pembayaran" 
+              element={
+                isAuthenticated ? 
+                <Pembayaran /> : 
+                <Navigate to="/login" replace />
+              } 
+            />
+            <Route 
+              path="/laporan" 
+              element={
+                isAuthenticated ? 
+                <Laporan /> : 
                 <Navigate to="/login" replace />
               } 
             />
