@@ -34,10 +34,8 @@ const Dashboard = ({ user }) => {
         
         setProfile(profileRes.user)
         
-        const sumTabungan = Array.isArray(tabunganRes.data) 
-          ? tabunganRes.data.reduce((sum, t) => sum + (t.jumlah || 0), 0) 
-          : 0;
-
+        const tabList = Array.isArray(tabunganRes) ? tabunganRes : (Array.isArray(tabunganRes?.data) ? tabunganRes.data : []);
+        const sumTabungan = tabList.reduce((sum, t) => sum + (t.jumlah || 0), 0);
         const summary = rekapRes.data?.ringkasan || {}
         setRingkasan({
           totalAnggota: summary.totalAnggota || 0,

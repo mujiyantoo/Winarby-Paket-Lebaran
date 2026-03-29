@@ -25,7 +25,7 @@ export default function NabungBebas() {
       ])
 
       const anggotaData = resAnggota?.data?.data || resAnggota?.data || []
-      const tabunganData = Array.isArray(resTabungan?.data) ? resTabungan.data : []
+      const tabunganData = Array.isArray(resTabungan) ? resTabungan : (Array.isArray(resTabungan?.data) ? resTabungan.data : [])
 
       setAnggotaList(anggotaData)
       setTabungan(tabunganData)
