@@ -134,6 +134,12 @@ export default function NabungBebas() {
     window.open(url, '_blank')
   }
 
+  const sendWABroadcast = () => {
+    const activeDate = filterDate || new Date().toISOString().slice(0, 10)
+    const msg = `Assalamualaikum Bp/Ibu/Sdr. 🙏\n\nIjin menginformasikan Saldo tabungan Bp/Ibu/Sdr. s.d tanggal ${tgl(activeDate)}.\n\nTerima kasih.\nWassalamualaikum Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
   return (
     <div className="space-y-5 animate-rise-in">
       {/* Header */}
@@ -143,6 +149,9 @@ export default function NabungBebas() {
           <p className="page-sub">Tabungan bebas tanpa terikat paket</p>
         </div>
         <div className="flex gap-2">
+          <button onClick={sendWABroadcast} className="btn-secondary flex-shrink-0 !text-emerald-700 !border-emerald-200 !bg-emerald-50 hover:!bg-emerald-100" title="Kirim Broadcast WA tanpa nama">
+            <MessageCircle size={16} />Broadcast WA
+          </button>
           <button onClick={() => window.print()} className="btn-secondary flex-shrink-0">
             <Printer size={16} />Cetak PDF
           </button>
