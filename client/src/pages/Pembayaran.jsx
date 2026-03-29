@@ -144,7 +144,7 @@ export default function Pembayaran() {
 
   const sendWABroadcast = () => {
     const activeDate = filterDate || new Date().toISOString().slice(0, 10)
-    const msg = `Assalamualaikum Bp/Ibu/Sdr. 🙏\n\nIjin menginformasikan Total Pembayaran Paket Bp/Ibu/Sdr. s.d tanggal ${tgl(activeDate)}.\n\nTerima kasih.\nWassalamualaikum Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
+    const msg = `Assalamualaikum Bp/Ibu/Sdr. 🙏\n\nBerikut kami sertakan tabel per tanggal ${tgl(activeDate)}.\n\nTerima kasih.\nWassalamualaikum Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
@@ -187,6 +187,12 @@ export default function Pembayaran() {
         {filterDate && (
           <button onClick={() => setFilterDate('')} className="btn-ghost !h-10 text-xs">Reset Tanggal</button>
         )}
+      </div>
+
+      {/* Header khusus untuk mode Print/PDF */}
+      <div className="hidden print:block mb-6 text-center">
+        <h1 className="font-display text-2xl font-bold text-brown-700">Laporan Pembayaran</h1>
+        <p className="text-brown-500 mt-1">Tabel per tanggal: {tgl(filterDate || new Date().toISOString().slice(0, 10))}</p>
       </div>
 
       <div className="card !p-0 overflow-hidden">
