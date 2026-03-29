@@ -18,7 +18,7 @@ const Navbar = ({ isAuthenticated, user, onLogout }) => {
   const isActive = (to) => location.pathname === to
 
   return (
-    <nav className="bg-cream-50/95 backdrop-blur-sm shadow-card border-b border-gold-200/40 sticky top-0 z-40">
+    <nav className="bg-cream-50/95 backdrop-blur-sm shadow-card border-b border-gold-200/40 sticky top-0 z-40 no-print">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}

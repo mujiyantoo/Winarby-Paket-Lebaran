@@ -11,7 +11,7 @@ router.get('/', async (req, res) => {
     if (anggotaId) filter.anggota = anggotaId
     
     const tabungan = await TabunganBebas.find(filter)
-      .populate('anggota', 'nama')
+      .populate('anggota', 'nama telepon')
       .sort({ tanggal: -1 })
     
     res.json(tabungan)
@@ -39,7 +39,7 @@ router.post('/', async (req, res) => {
     })
     
     const saved = await newTabungan.save()
-    const populated = await saved.populate('anggota', 'nama')
+    const populated = await saved.populate('anggota', 'nama telepon')
     
     res.status(201).json(populated)
   } catch (err) {
@@ -64,7 +64,7 @@ router.put('/:id', async (req, res) => {
       req.params.id,
       { anggota, jumlah, tanggal, keterangan },
       { new: true, runValidators: true }
-    ).populate('anggota', 'nama')
+    ).populate('anggota', 'nama telepon')
     
     if (!updated) {
       return res.status(404).json({ success: false, message: 'Tabungan tidak ditemukan' })

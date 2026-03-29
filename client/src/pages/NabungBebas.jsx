@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Plus, Search, Pencil, Trash2, PiggyBank, TrendingUp, Wallet } from 'lucide-react'
+import { Plus, Search, Pencil, Trash2, PiggyBank, TrendingUp, Wallet, Printer, MessageCircle } from 'lucide-react'
 import api from '../api/auth'
 
 const EMPTY = { anggota: '', jumlah: '', tanggal: new Date().toISOString().slice(0, 10), keterangan: '' }
@@ -13,6 +13,7 @@ export default function NabungBebas() {
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(EMPTY)
   const [delId, setDelId] = useState(null)
+  const [filterDate, setFilterDate] = useState('')
 
   useEffect(() => { fetchData() }, [])
 
@@ -39,6 +40,7 @@ export default function NabungBebas() {
   const filtered = [...tabungan]
     .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal))
     .filter(t => !q || t.anggota?.nama?.toLowerCase().includes(q.toLowerCase()))
+    .filter(t => !filterDate || (t.tanggal && t.tanggal.startsWith(filterDate)))
 
   // Per-anggota summary
   const perAnggota = {}
@@ -111,17 +113,40 @@ export default function NabungBebas() {
   const tgl = (d) =>
     new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
 
+  const sendWA = (t) => {
+    if (!t.anggota?.telepon) {
+      alert('Nomor telepon anggota belum diisi.')
+      return
+    }
+    const phone = t.anggota.telepon.replace(/\D/g, '')
+    const finalPhone = phone.startsWith('0') ? '62' + phone.slice(1) : phone
+    
+    const currentAnggotaId = t.anggota._id
+    const accumulated = tabungan
+      .filter(item => item.anggota?._id === currentAnggotaId && new Date(item.tanggal) <= new Date(t.tanggal))
+      .reduce((sum, item) => sum + item.jumlah, 0)
+    
+    const msg = `Assalamualaikum Bp/Ibu/Sdr. ${t.anggota.nama}\n\nIjin menginformasikan Saldo tabungan Bp/Ibu/Sdr. s.d tanggal ${tgl(t.tanggal)} adalah *${rupiah(accumulated)}*.\n\nTerima kasih.\nWaalaikum Salam Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
+    
+    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank')
+  }
+
   return (
     <div className="space-y-5 animate-rise-in">
       {/* Header */}
-      <div className="page-header flex items-start justify-between gap-4">
+      <div className="page-header flex items-start justify-between gap-4 no-print">
         <div>
           <h1 className="page-title">Nabung Bebas</h1>
           <p className="page-sub">Tabungan bebas tanpa terikat paket</p>
         </div>
-        <button onClick={openAdd} className="btn-primary btn-shimmer flex-shrink-0">
-          <Plus size={16} />Catat Tabungan
-        </button>
+        <div className="flex gap-2">
+          <button onClick={() => window.print()} className="btn-secondary flex-shrink-0">
+            <Printer size={16} />Cetak PDF
+          </button>
+          <button onClick={openAdd} className="btn-primary btn-shimmer flex-shrink-0">
+            <Plus size={16} />Catat Tabungan
+          </button>
+        </div>
       </div>
 
       {/* Stats */}
@@ -145,14 +170,25 @@ export default function NabungBebas() {
       </div>
 
       {/* Search */}
-      <div className="relative max-w-xs">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brown-100 pointer-events-none" />
-        <input
-          value={q}
-          onChange={e => setQ(e.target.value)}
-          placeholder="Cari nama anggota…"
-          className="input input-icon-left h-10 text-sm"
+      <div className="flex flex-col sm:flex-row gap-3 mb-5 no-print">
+        <div className="relative flex-1 max-w-xs">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-brown-100 pointer-events-none" />
+          <input
+            value={q}
+            onChange={e => setQ(e.target.value)}
+            placeholder="Cari nama anggota…"
+            className="input input-icon-left h-10 text-sm"
+          />
+        </div>
+        <input 
+          type="month"
+          value={filterDate}
+          onChange={e => setFilterDate(e.target.value)}
+          className="input h-10 text-sm max-w-[160px]"
         />
+        {filterDate && (
+          <button onClick={() => setFilterDate('')} className="btn-ghost !h-10 text-xs">Reset Bulan</button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -166,7 +202,7 @@ export default function NabungBebas() {
                   <th>Jumlah</th>
                   <th>Tanggal</th>
                   <th>Keterangan</th>
-                  <th>Aksi</th>
+                  <th className="no-print">Aksi</th>
                 </tr>
               </thead>
               <tbody>
@@ -189,8 +225,11 @@ export default function NabungBebas() {
                     <td className="font-semibold text-purple-600">{rupiah(t.jumlah)}</td>
                     <td className="text-sm text-brown-300">{tgl(t.tanggal)}</td>
                     <td className="text-sm text-brown-300">{t.keterangan || '—'}</td>
-                    <td>
+                    <td className="no-print">
                       <div className="flex gap-1.5">
+                        <button onClick={() => sendWA(t)} className="btn-ghost !h-8 !px-2.5 !text-emerald-600 hover:!bg-emerald-50" title="Kirim WA">
+                          <MessageCircle size={14} />
+                        </button>
                         <button onClick={() => openEdit(t)} className="btn-ghost !h-8 !px-2.5">
                           <Pencil size={13} />
                         </button>
