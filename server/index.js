@@ -30,6 +30,7 @@ const paketRoutes = require('./routes/paket');
 const anggotaRoutes = require('./routes/anggota');
 const pembayaranRoutes = require('./routes/pembayaran');
 const tabunganBebasRoutes = require('./routes/tabunganBebas');
+const dataRoutes = require('./routes/data');
 
 // Use routes (Universal handling for /api prefix)
 const routes = [
@@ -39,6 +40,7 @@ const routes = [
   ['/anggota', anggotaRoutes],
   ['/pembayaran', pembayaranRoutes],
   ['/tabungan-bebas', tabunganBebasRoutes],
+  ['/data', dataRoutes],
 ];
 
 routes.forEach(([path, handler]) => {
