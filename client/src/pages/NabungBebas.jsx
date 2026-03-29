@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Plus, Search, Pencil, Trash2, PiggyBank, TrendingUp, Wallet } from 'lucide-react'
+import api from '../api/auth'
 
 const EMPTY = { anggota: '', jumlah: '', tanggal: new Date().toISOString().slice(0, 10), keterangan: '' }
 
@@ -18,25 +19,16 @@ export default function NabungBebas() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      // Simulasi data anggota
-      const mockAnggota = [
-        { _id: '1', nama: 'Budi Santoso' },
-        { _id: '2', nama: 'Siti Rahayu' },
-        { _id: '3', nama: 'Ahmad Wijaya' },
-        { _id: '4', nama: 'Dewi Lestari' },
-        { _id: '5', nama: 'Eko Prasetyo' },
-      ]
-      // Simulasi data tabungan bebas
-      const mockTabungan = [
-        { _id: '1', anggota: mockAnggota[0], jumlah: 150000, tanggal: '2026-03-28', keterangan: 'Nabung mingguan' },
-        { _id: '2', anggota: mockAnggota[1], jumlah: 75000, tanggal: '2026-03-27', keterangan: 'Nabung harian' },
-        { _id: '3', anggota: mockAnggota[2], jumlah: 200000, tanggal: '2026-03-25', keterangan: 'Nabung bulanan' },
-        { _id: '4', anggota: mockAnggota[3], jumlah: 50000, tanggal: '2026-03-24', keterangan: '' },
-        { _id: '5', anggota: mockAnggota[0], jumlah: 100000, tanggal: '2026-03-20', keterangan: 'Nabung mingguan' },
-        { _id: '6', anggota: mockAnggota[4], jumlah: 300000, tanggal: '2026-03-18', keterangan: 'Nabung sekaligus' },
-      ]
-      setAnggotaList(mockAnggota)
-      setTabungan(mockTabungan)
+      const [resAnggota, resTabungan] = await Promise.all([
+        api.get('/anggota').catch(() => ({ data: { data: [] } })),
+        api.get('/tabungan-bebas').catch(() => ({ data: [] }))
+      ])
+
+      const anggotaData = resAnggota?.data?.data || resAnggota?.data || []
+      const tabunganData = Array.isArray(resTabungan?.data) ? resTabungan.data : []
+
+      setAnggotaList(anggotaData)
+      setTabungan(tabunganData)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -85,28 +77,31 @@ export default function NabungBebas() {
   async function handleSave() {
     if (!form.anggota || !form.jumlah) return
     const data = { ...form, jumlah: Number(form.jumlah) }
-    const selectedAnggota = anggotaList.find(a => a._id === form.anggota)
 
-    if (modal === 'add') {
-      setTabungan([...tabungan, {
-        _id: Date.now().toString(),
-        anggota: selectedAnggota,
-        ...data,
-      }])
-    } else {
-      setTabungan(tabungan.map(t =>
-        t._id === editing._id
-          ? { ...t, ...data, anggota: selectedAnggota }
-          : t
-      ))
+    try {
+      if (modal === 'add') {
+        await api.post('/tabungan-bebas', data)
+      } else {
+        await api.put(`/tabungan-bebas/${editing._id}`, data)
+      }
+      fetchData()
+      closeModal()
+    } catch (error) {
+      console.error('Error saving data:', error)
+      alert(error.message || 'Gagal menyimpan tabungan')
     }
-    closeModal()
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (delId) {
-      setTabungan(tabungan.filter(t => t._id !== delId))
-      setDelId(null)
+      try {
+        await api.delete(`/tabungan-bebas/${delId}`)
+        fetchData()
+        setDelId(null)
+      } catch (error) {
+        console.error('Error deleting data:', error)
+        alert('Gagal menghapus tabungan')
+      }
     }
   }
 
