@@ -136,7 +136,17 @@ export default function NabungBebas() {
 
   const sendWABroadcast = () => {
     const activeDate = filterDate || new Date().toISOString().slice(0, 10)
-    const msg = `Assalamualaikum Bp/Ibu/Sdr. 🙏\n\nBerikut kami sertakan tabel per tanggal ${tgl(activeDate)}.\n\nTerima kasih.\nWassalamualaikum Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
+    // Filter data yang sesuai dengan tanggal aktif saja
+    const list = filtered.filter(t => t.tanggal?.startsWith(activeDate))
+
+    let tableText = ''
+    if (list.length > 0) {
+      tableText = '\n\n*Daftar Nabung:*' + list.map((t, i) => `\n${i+1}. ${t.anggota?.nama || '—'} - ${rupiah(t.jumlah)}`).join('')
+    } else {
+      tableText = '\n\n(Tidak ada data nabung untuk tanggal ini)'
+    }
+
+    const msg = `Assalamualaikum Bp/Ibu/Sdr. 🙏\n\nBerikut kami sertakan tabel per tanggal ${tgl(activeDate)}:${tableText}\n\nTerima kasih.\nWassalamualaikum Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
