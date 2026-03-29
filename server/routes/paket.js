@@ -6,11 +6,11 @@ const Paket = require('../models/Paket');
 
 // Validation rules for creating/updating paket
 const paketValidationRules = [
-  body('name').trim().notEmpty().withMessage('Name is required'),
-  body('description').trim().notEmpty().withMessage('Description is required'),
-  body('price').isFloat({ min: 0 }).withMessage('Price must be a positive number'),
+  body('nama').trim().notEmpty().withMessage('Nama is required'),
+  body('deskripsi').trim().notEmpty().withMessage('Deskripsi is required'),
+  body('harga').isFloat({ min: 0 }).withMessage('Harga must be a positive number'),
   body('duration').isInt({ min: 1 }).withMessage('Duration must be at least 1 day'),
-  body('features').optional().isArray().withMessage('Features must be an array'),
+  body('items').optional().isArray().withMessage('Items must be an array'),
   body('isActive').optional().isBoolean().withMessage('isActive must be boolean')
 ];
 
@@ -85,10 +85,10 @@ router.post('/', authMiddleware, paketValidationRules, async (req, res) => {
       });
     }
     
-    const { name, description, price, duration, features, isActive } = req.body;
+    const { nama, deskripsi, harga, duration, items, isActive } = req.body;
     
     // Check if paket with same name already exists
-    const existingPaket = await Paket.findOne({ name });
+    const existingPaket = await Paket.findOne({ nama });
     if (existingPaket) {
       return res.status(400).json({ 
         success: false, 
@@ -98,11 +98,11 @@ router.post('/', authMiddleware, paketValidationRules, async (req, res) => {
     
     // Create new paket
     const paket = new Paket({
-      name,
-      description,
-      price,
+      nama,
+      deskripsi,
+      harga,
       duration,
-      features: features || [],
+      items: items || [],
       isActive: isActive !== undefined ? isActive : true
     });
     
@@ -134,7 +134,7 @@ router.put('/:id', authMiddleware, paketValidationRules, async (req, res) => {
       });
     }
     
-    const { name, description, price, duration, features, isActive } = req.body;
+    const { nama, deskripsi, harga, duration, items, isActive } = req.body;
     
     // Check if paket exists
     let paket = await Paket.findById(req.params.id);
@@ -146,8 +146,8 @@ router.put('/:id', authMiddleware, paketValidationRules, async (req, res) => {
     }
     
     // Check if name is being changed and if new name already exists
-    if (name && name !== paket.name) {
-      const existingPaket = await Paket.findOne({ name });
+    if (nama && nama !== paket.nama) {
+      const existingPaket = await Paket.findOne({ nama });
       if (existingPaket) {
         return res.status(400).json({ 
           success: false, 
@@ -157,11 +157,11 @@ router.put('/:id', authMiddleware, paketValidationRules, async (req, res) => {
     }
     
     // Update paket
-    paket.name = name || paket.name;
-    paket.description = description || paket.description;
-    paket.price = price !== undefined ? price : paket.price;
+    paket.nama = nama || paket.nama;
+    paket.deskripsi = deskripsi || paket.deskripsi;
+    paket.harga = harga !== undefined ? harga : paket.harga;
     paket.duration = duration !== undefined ? duration : paket.duration;
-    paket.features = features || paket.features;
+    paket.items = items || paket.items;
     paket.isActive = isActive !== undefined ? isActive : paket.isActive;
     
     await paket.save();

@@ -3,7 +3,7 @@ import { Plus, Search, Pencil, Trash2, Package, ToggleLeft, ToggleRight, X } fro
 import { paketAPI } from '../api/paket'
 import { authAPI } from '../api/auth'
 
-const EMPTY = { name: '', description: '', price: '', duration: '', features: '', isActive: true }
+const EMPTY = { nama: '', deskripsi: '', harga: '', duration: '', items: '', isActive: true }
 
 export default function PaketPage() {
   const [pakets, setPakets] = useState([])
@@ -35,7 +35,7 @@ export default function PaketPage() {
   }
 
   const filtered = pakets.filter(p =>
-    p.name?.toLowerCase().includes(q.toLowerCase()) || p.description?.toLowerCase().includes(q.toLowerCase())
+    p.nama?.toLowerCase().includes(q.toLowerCase()) || p.deskripsi?.toLowerCase().includes(q.toLowerCase())
   )
 
   const rupiah = (n) =>
@@ -50,12 +50,12 @@ export default function PaketPage() {
   function openEdit(p) {
     setEditingId(p._id)
     setForm({
-      name: p.name,
-      description: p.description,
-      price: p.price.toString(),
-      duration: p.duration.toString(),
-      features: Array.isArray(p.features) ? p.features.join(', ') : p.features || '',
-      isActive: p.isActive,
+      nama: p.nama || '',
+      deskripsi: p.deskripsi || '',
+      harga: p.harga?.toString() || '',
+      duration: p.duration?.toString() || '90',
+      items: Array.isArray(p.items) ? p.items.join(', ') : p.items || '',
+      isActive: p.isActive !== undefined ? p.isActive : true,
     })
     setModal('edit')
   }
@@ -67,14 +67,14 @@ export default function PaketPage() {
 
   async function handleSave(e) {
     e?.preventDefault()
-    if (!form.name.trim() || !form.price) return
+    if (!form.nama.trim() || !form.harga) return
 
     const paketData = {
-      name: form.name,
-      description: form.description,
-      price: parseFloat(form.price),
+      nama: form.nama,
+      deskripsi: form.deskripsi,
+      harga: parseFloat(form.harga),
       duration: parseInt(form.duration, 10) || 90,
-      features: form.features.split(',').map(f => f.trim()).filter(f => f.length > 0),
+      items: form.items?.split(',').map(f => f.trim()).filter(f => f.length > 0) || [],
       isActive: form.isActive,
     }
 
@@ -174,7 +174,7 @@ export default function PaketPage() {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-display text-xl font-semibold text-brown-700 group-hover:text-gold-600 transition-colors">
-                  {p.name}
+                  {p.nama}
                 </h3>
                 <span className={p.isActive ? 'badge-green mt-1' : 'badge-red mt-1'}>
                   {p.isActive ? 'Aktif' : 'Nonaktif'}
@@ -182,28 +182,28 @@ export default function PaketPage() {
               </div>
               <div className="text-right">
                 <p className="font-display text-2xl font-bold text-gold-600 leading-none">
-                  {rupiah(p.price)}
+                  {rupiah(p.harga)}
                 </p>
                 <p className="text-[11px] text-brown-100 mt-0.5">{p.duration} hari</p>
               </div>
             </div>
 
             {/* Description */}
-            <p className="text-sm text-brown-300 mb-4">{p.description}</p>
+            <p className="text-sm text-brown-300 mb-4">{p.deskripsi}</p>
 
             {/* Features */}
-            {p.features && p.features.length > 0 && (
+            {p.items && p.items.length > 0 && (
               <div className="mb-4">
                 <p className="text-[11px] uppercase tracking-wider text-brown-300 font-medium mb-2">Isi Paket</p>
                 <ul className="space-y-1.5">
-                  {(Array.isArray(p.features) ? p.features : []).slice(0, 4).map((feat, idx) => (
+                  {(Array.isArray(p.items) ? p.items : []).slice(0, 4).map((feat, idx) => (
                     <li key={idx} className="flex items-center gap-2 text-sm text-brown-500">
                       <span className="w-1.5 h-1.5 rounded-full bg-gold-400 flex-shrink-0" />
                       {feat}
                     </li>
                   ))}
-                  {p.features.length > 4 && (
-                    <li className="text-xs text-brown-100 pl-3.5">+{p.features.length - 4} lainnya</li>
+                  {p.items.length > 4 && (
+                    <li className="text-xs text-brown-100 pl-3.5">+{p.items.length - 4} lainnya</li>
                   )}
                 </ul>
               </div>
@@ -247,11 +247,11 @@ export default function PaketPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="col-span-2 sm:col-span-1">
                   <label className="input-label">Nama Paket *</label>
-                  <input {...f('name')} className="input" placeholder="cth: Paket Gold" required />
+                  <input {...f('nama')} className="input" placeholder="cth: Paket Gold" required />
                 </div>
                 <div>
                   <label className="input-label">Harga *</label>
-                  <input type="number" {...f('price')} className="input" placeholder="750000" min="0" required />
+                  <input type="number" {...f('harga')} className="input" placeholder="750000" min="0" required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -276,11 +276,11 @@ export default function PaketPage() {
               </div>
               <div>
                 <label className="input-label">Deskripsi</label>
-                <textarea {...f('description')} className="input !h-auto" rows="2" placeholder="Deskripsi singkat paket…" />
+                <textarea {...f('deskripsi')} className="input !h-auto" rows="2" placeholder="Deskripsi singkat paket…" />
               </div>
               <div>
                 <label className="input-label">Isi Paket (pisahkan koma)</label>
-                <input {...f('features')} className="input" placeholder="Beras 10kg, Gula 3kg, Minyak 4L" />
+                <input {...f('items')} className="input" placeholder="Beras 10kg, Gula 3kg, Minyak 4L" />
                 <p className="text-xs text-brown-100 mt-1">Pisahkan item dengan tanda koma</p>
               </div>
               <div className="flex gap-3 pt-4">
