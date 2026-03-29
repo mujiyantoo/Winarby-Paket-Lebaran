@@ -133,7 +133,7 @@ export default function Pembayaran() {
       .filter(item => item.anggota?._id === currentAnggotaId && new Date(item.tanggal) <= new Date(p.tanggal))
       .reduce((sum, item) => sum + item.jumlah, 0)
     
-    const msg = `Assalamualaikum Bp/Ibu/Sdr. ${p.anggota.nama}\n\nIjin menginformasikan Total Pembayaran Paket Bp/Ibu/Sdr. s.d tanggal ${tgl(p.tanggal)} adalah *${rupiah(accumulated)}*.\n\nTerima kasih.\nWaalaikum Salam Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
+    const msg = `Assalamualaikum Bp/Ibu/Sdr. ${p.anggota.nama}\n\nIjin menginformasikan Total Pembayaran Paket Bp/Ibu/Sdr. s.d tanggal ${tgl(p.tanggal)} adalah *${rupiah(accumulated)}*.\n\nTerima kasih.\nWassalamualaikum Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
     
     const url = finalPhone 
       ? `https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`
