@@ -122,12 +122,11 @@ export default function Pembayaran() {
   }
 
   const sendWA = (p) => {
-    if (!p.anggota?.telepon) {
-      alert('Nomor telepon anggota belum diisi.')
-      return
+    let finalPhone = ''
+    if (p.anggota?.telepon) {
+      const phone = p.anggota.telepon.replace(/\D/g, '')
+      finalPhone = phone.startsWith('0') ? '62' + phone.slice(1) : phone
     }
-    const phone = p.anggota.telepon.replace(/\D/g, '')
-    const finalPhone = phone.startsWith('0') ? '62' + phone.slice(1) : phone
     
     const currentAnggotaId = p.anggota._id
     const accumulated = pembayaran
@@ -136,7 +135,11 @@ export default function Pembayaran() {
     
     const msg = `Assalamualaikum Bp/Ibu/Sdr. ${p.anggota.nama}\n\nIjin menginformasikan Total Pembayaran Paket Bp/Ibu/Sdr. s.d tanggal ${tgl(p.tanggal)} adalah *${rupiah(accumulated)}*.\n\nTerima kasih.\nWaalaikum Salam Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
     
-    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank')
+    const url = finalPhone 
+      ? `https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`
+    
+    window.open(url, '_blank')
   }
 
   return (
@@ -167,13 +170,13 @@ export default function Pembayaran() {
           />
         </div>
         <input 
-          type="month"
+          type="date"
           value={filterDate}
           onChange={e => setFilterDate(e.target.value)}
           className="input h-10 text-sm max-w-[160px]"
         />
         {filterDate && (
-          <button onClick={() => setFilterDate('')} className="btn-ghost !h-10 text-xs">Reset Bulan</button>
+          <button onClick={() => setFilterDate('')} className="btn-ghost !h-10 text-xs">Reset Tanggal</button>
         )}
       </div>
 
@@ -221,8 +224,8 @@ export default function Pembayaran() {
                   <td className="text-sm text-brown-300">{p.keterangan || '—'}</td>
                   <td className="no-print">
                     <div className="flex gap-1.5">
-                      <button onClick={() => sendWA(p)} className="btn-ghost !h-8 !px-2.5 !text-emerald-600 hover:!bg-emerald-50" title="Kirim WA">
-                        <MessageCircle size={14} />
+                      <button onClick={() => sendWA(p)} className="btn-ghost !h-8 !px-2.5 !text-emerald-600 hover:!bg-emerald-50 font-medium text-xs flex items-center gap-1" title="Kirim WA">
+                        <MessageCircle size={14} /> WA
                       </button>
                       <button onClick={() => openEdit(p)} className="btn-ghost !h-8 !px-2.5">
                         <Pencil size={13} />

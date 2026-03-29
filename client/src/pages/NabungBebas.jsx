@@ -114,12 +114,11 @@ export default function NabungBebas() {
     new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
 
   const sendWA = (t) => {
-    if (!t.anggota?.telepon) {
-      alert('Nomor telepon anggota belum diisi.')
-      return
+    let finalPhone = ''
+    if (t.anggota?.telepon) {
+      const phone = t.anggota.telepon.replace(/\D/g, '')
+      finalPhone = phone.startsWith('0') ? '62' + phone.slice(1) : phone
     }
-    const phone = t.anggota.telepon.replace(/\D/g, '')
-    const finalPhone = phone.startsWith('0') ? '62' + phone.slice(1) : phone
     
     const currentAnggotaId = t.anggota._id
     const accumulated = tabungan
@@ -128,7 +127,11 @@ export default function NabungBebas() {
     
     const msg = `Assalamualaikum Bp/Ibu/Sdr. ${t.anggota.nama}\n\nIjin menginformasikan Saldo tabungan Bp/Ibu/Sdr. s.d tanggal ${tgl(t.tanggal)} adalah *${rupiah(accumulated)}*.\n\nTerima kasih.\nWaalaikum Salam Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
     
-    window.open(`https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`, '_blank')
+    const url = finalPhone 
+      ? `https://wa.me/${finalPhone}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`
+      
+    window.open(url, '_blank')
   }
 
   return (
@@ -181,13 +184,13 @@ export default function NabungBebas() {
           />
         </div>
         <input 
-          type="month"
+          type="date"
           value={filterDate}
           onChange={e => setFilterDate(e.target.value)}
           className="input h-10 text-sm max-w-[160px]"
         />
         {filterDate && (
-          <button onClick={() => setFilterDate('')} className="btn-ghost !h-10 text-xs">Reset Bulan</button>
+          <button onClick={() => setFilterDate('')} className="btn-ghost !h-10 text-xs">Reset Tanggal</button>
         )}
       </div>
 
@@ -227,8 +230,8 @@ export default function NabungBebas() {
                     <td className="text-sm text-brown-300">{t.keterangan || '—'}</td>
                     <td className="no-print">
                       <div className="flex gap-1.5">
-                        <button onClick={() => sendWA(t)} className="btn-ghost !h-8 !px-2.5 !text-emerald-600 hover:!bg-emerald-50" title="Kirim WA">
-                          <MessageCircle size={14} />
+                        <button onClick={() => sendWA(t)} className="btn-ghost !h-8 !px-2.5 !text-emerald-600 hover:!bg-emerald-50 font-medium text-xs flex items-center gap-1" title="Kirim WA">
+                          <MessageCircle size={14} /> WA
                         </button>
                         <button onClick={() => openEdit(t)} className="btn-ghost !h-8 !px-2.5">
                           <Pencil size={13} />
