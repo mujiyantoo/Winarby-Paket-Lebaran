@@ -146,7 +146,7 @@ export default function NabungBebas() {
       tableText = '\n\n(Tidak ada data nabung untuk tanggal ini)'
     }
 
-    const msg = `Assalamualaikum Bp/Ibu/Sdr. 🙏\n\nBerikut kami sertakan tabel per tanggal ${tgl(activeDate)}:${tableText}\n\nTerima kasih.\nWassalamualaikum Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
+    const msg = `Assalamualaikum Bp/Ibu/Sdr. 🙏\n\nBerikut kami sampaikan Data setoran tabungan per tanggal ${tgl(activeDate)}:${tableText}\n\nTerima kasih.\nWassalamualaikum Warahmatullah Wb,\nPengelola Tabungan,\nNia Kurniawati`
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank')
   }
 
