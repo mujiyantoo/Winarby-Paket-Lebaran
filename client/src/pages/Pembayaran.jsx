@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Plus, Search, Pencil, Trash2, CreditCard } from 'lucide-react'
+import api from '../api/auth'
 
 const EMPTY = { anggota: '', paket: '', jumlah: '', tanggal: new Date().toISOString().slice(0, 10), metode: 'tunai', keterangan: '' }
 
@@ -21,25 +22,19 @@ export default function Pembayaran() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      // Simulasi data
-      const mockAnggota = [
-        { _id: '1', nama: 'Budi Santoso' },
-        { _id: '2', nama: 'Siti Rahayu' },
-        { _id: '3', nama: 'Ahmad Wijaya' },
-      ]
-      const mockPaket = [
-        { _id: '1', nama: 'Paket Silver', harga: 500000 },
-        { _id: '2', nama: 'Paket Gold', harga: 750000 },
-        { _id: '3', nama: 'Paket Platinum', harga: 1000000 },
-      ]
-      const mockPembayaran = [
-        { _id: '1', anggota: mockAnggota[0], paket: mockPaket[0], jumlah: 500000, tanggal: '2024-03-25', metode: 'tunai', keterangan: 'Pelunasan' },
-        { _id: '2', anggota: mockAnggota[1], paket: mockPaket[1], jumlah: 250000, tanggal: '2024-03-20', metode: 'transfer', keterangan: 'Cicilan 1' },
-        { _id: '3', anggota: mockAnggota[2], paket: mockPaket[2], jumlah: 500000, tanggal: '2024-03-15', metode: 'tunai', keterangan: 'DP' },
-      ]
-      setAnggota(mockAnggota)
-      setPaket(mockPaket)
-      setPembayaran(mockPembayaran)
+      const [resAnggota, resPaket, resPembayaran] = await Promise.all([
+        api.get('/anggota').catch(() => ({ data: { data: [] } })),
+        api.get('/paket').catch(() => ({ data: { data: [] } })),
+        api.get('/pembayaran').catch(() => ({ data: { data: [] } }))
+      ])
+
+      const anggotaData = resAnggota?.data?.data || resAnggota?.data || []
+      const paketData = resPaket?.data?.data || resPaket?.data || []
+      const pembayaranData = resPembayaran?.data?.data || resPembayaran?.data || []
+
+      setAnggota(anggotaData)
+      setPaket(paketData)
+      setPembayaran(pembayaranData)
     } catch (error) {
       console.error('Error fetching data:', error)
     } finally {
@@ -78,34 +73,31 @@ export default function Pembayaran() {
     if (!form.anggota || !form.paket || !form.jumlah) return
 
     const data = { ...form, jumlah: Number(form.jumlah) }
-    const selectedAnggota = anggota.find(a => a._id === form.anggota)
-    const selectedPaket = paket.find(p => p._id === form.paket)
 
-    if (modal === 'add') {
-      const newPembayaran = {
-        _id: Date.now().toString(),
-        anggota: selectedAnggota,
-        paket: selectedPaket,
-        ...data
+    try {
+      if (modal === 'add') {
+        await api.post('/pembayaran', data)
+      } else {
+        await api.put(`/pembayaran/${editing._id}`, data)
       }
-      setPembayaran([...pembayaran, newPembayaran])
-      alert('Pembayaran berhasil dicatat!')
-    } else {
-      setPembayaran(pembayaran.map(p =>
-        p._id === editing._id
-          ? { ...p, ...data, anggota: selectedAnggota, paket: selectedPaket }
-          : p
-      ))
-      alert('Pembayaran berhasil diperbarui!')
+      fetchData()
+      closeModal()
+    } catch (error) {
+      console.error('Error saving data:', error)
+      alert(error.message || 'Gagal menyimpan pembayaran')
     }
-    closeModal()
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (delId) {
-      setPembayaran(pembayaran.filter(p => p._id !== delId))
-      setDelId(null)
-      alert('Pembayaran berhasil dihapus!')
+      try {
+        await api.delete(`/pembayaran/${delId}`)
+        fetchData()
+        setDelId(null)
+      } catch (error) {
+        console.error('Error deleting data:', error)
+        alert('Gagal menghapus pembayaran')
+      }
     }
   }
 

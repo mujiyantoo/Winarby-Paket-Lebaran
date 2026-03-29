@@ -22,17 +22,13 @@ export default function PaketPage() {
     setLoading(true)
     try {
       const response = await paketAPI.getAllPakets()
-      setPakets(response.data || response || [])
+      // axios returns response.data, and our backend returns { success: true, data: [...] }
+      const fetchedPakets = response?.data?.data || []
+      setPakets(fetchedPakets)
       setError('')
     } catch (err) {
       console.error('Gagal memuat paket:', err)
-      // Fallback mock data agar halaman tetap terlihat
-      setPakets([
-        { _id: '1', name: 'Paket Silver', description: 'Paket hemat untuk keluarga kecil', price: 500000, duration: 90, features: ['Beras 5kg', 'Minyak Goreng 2L', 'Gula 2kg'], isActive: true, createdAt: '2026-01-15' },
-        { _id: '2', name: 'Paket Gold', description: 'Paket lengkap untuk keluarga', price: 750000, duration: 90, features: ['Beras 10kg', 'Minyak Goreng 4L', 'Gula 3kg', 'Sirup 2 btl', 'Kue Kering'], isActive: true, createdAt: '2026-01-15' },
-        { _id: '3', name: 'Paket Platinum', description: 'Paket premium paling komplit', price: 1000000, duration: 90, features: ['Beras 15kg', 'Minyak Goreng 5L', 'Gula 5kg', 'Sirup 3 btl', 'Kue Kering 3 toples', 'Daging 2kg'], isActive: true, createdAt: '2026-01-15' },
-      ])
-      setError('')
+      setError('Gagal mengambil data paket')
     } finally {
       setLoading(false)
     }
