@@ -40,8 +40,13 @@ app.use('/api/anggota', anggotaRoutes);
 app.use('/api/pembayaran', pembayaranRoutes);
 app.use('/api/tabungan-bebas', tabunganBebasRoutes);
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/api/health`);
-});
+// Export app for Vercel
+module.exports = app;
+
+// Start server (only if not on Vercel)
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/api/health`);
+  });
+}
