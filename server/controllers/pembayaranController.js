@@ -10,6 +10,14 @@ exports.getAll = async (req, res, next) => {
     if (anggotaId) filter.anggota = anggotaId
     if (paketId)   filter.paket   = paketId
 
+    // Hapus data pembayaran yang corrupted/kosong dari database (NaN/undefined)
+    await Pembayaran.deleteMany({ 
+      $or: [
+        { jumlah: { $exists: false } },
+        { jumlah: null }
+      ]
+    })
+
     const data = await Pembayaran.find(filter)
       .populate('anggota', 'nama telepon')
       .populate('paket',   'nama harga')
@@ -53,6 +61,11 @@ exports.remove = async (req, res, next) => {
 // GET /api/pembayaran/rekap  — ringkasan per anggota untuk laporan
 exports.rekap = async (req, res, next) => {
   try {
+    // Hapus pembayaran corrupted
+    await Pembayaran.deleteMany({ 
+      $or: [ { jumlah: { $exists: false } }, { jumlah: null } ]
+    });
+
     const anggotaList = await Anggota.find().sort({ nama: 1 })
     const paketList   = await Paket.find()
     const allPay      = await Pembayaran.find()
