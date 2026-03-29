@@ -31,14 +31,23 @@ const anggotaRoutes = require('./routes/anggota');
 const pembayaranRoutes = require('./routes/pembayaran');
 const tabunganBebasRoutes = require('./routes/tabunganBebas');
 
-// Use routes
-app.use('/api/auth', authRoutes);
-app.use('/api/auth', profileRoutes);
-app.use('/api', healthRoutes);
-app.use('/api/paket', paketRoutes);
-app.use('/api/anggota', anggotaRoutes);
-app.use('/api/pembayaran', pembayaranRoutes);
-app.use('/api/tabungan-bebas', tabunganBebasRoutes);
+// Use routes (Universal handling for /api prefix)
+const routes = [
+  ['/auth', authRoutes],
+  ['/auth', profileRoutes],
+  ['/paket', paketRoutes],
+  ['/anggota', anggotaRoutes],
+  ['/pembayaran', pembayaranRoutes],
+  ['/tabungan-bebas', tabunganBebasRoutes],
+];
+
+routes.forEach(([path, handler]) => {
+  app.use(path, handler);          // Match without /api prefix
+  app.use('/api' + path, handler); // Match with /api prefix
+});
+
+app.use('/health', healthRoutes);
+app.use('/api/health', healthRoutes);
 
 // Export app for Vercel
 module.exports = app;
