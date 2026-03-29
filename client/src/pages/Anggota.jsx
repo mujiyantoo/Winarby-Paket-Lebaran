@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Plus, Search, Pencil, Trash2, Users } from 'lucide-react'
+import api from '../api/auth'
 
 const EMPTY = { nama: '', alamat: '', telepon: '', bergabung: new Date().toISOString().slice(0, 10), status: 'aktif' }
 
@@ -19,13 +20,8 @@ export default function Anggota() {
   const fetchAnggota = async () => {
     setLoading(true)
     try {
-      // Simulasi data
-      const mockData = [
-        { _id: '1', nama: 'Budi Santoso', alamat: 'Jl. Merdeka No. 10', telepon: '081234567890', bergabung: '2024-01-15', status: 'aktif' },
-        { _id: '2', nama: 'Siti Rahayu', alamat: 'Jl. Sudirman No. 25', telepon: '082345678901', bergabung: '2024-02-20', status: 'aktif' },
-        { _id: '3', nama: 'Ahmad Wijaya', alamat: 'Jl. Gatot Subroto No. 5', telepon: '083456789012', bergabung: '2024-03-10', status: 'nonaktif' },
-      ]
-      setAnggota(mockData)
+      const { data } = await api.get('/anggota')
+      setAnggota(data.data || data || [])
     } catch (error) {
       console.error('Error fetching anggota:', error)
     } finally {
@@ -62,26 +58,30 @@ export default function Anggota() {
   async function handleSave() {
     if (!form.nama.trim()) return
 
-    // Simulasi save
-    if (modal === 'add') {
-      const newAnggota = {
-        _id: Date.now().toString(),
-        ...form
+    try {
+      if (modal === 'add') {
+        await api.post('/anggota', form)
+      } else {
+        await api.put(`/anggota/${editing._id}`, form)
       }
-      setAnggota([...anggota, newAnggota])
-      alert('Anggota berhasil ditambahkan!')
-    } else {
-      setAnggota(anggota.map(a => a._id === editing._id ? { ...a, ...form } : a))
-      alert('Anggota berhasil diperbarui!')
+      fetchAnggota()
+      closeModal()
+    } catch (error) {
+      console.error('Error saving anggota:', error)
+      alert(error.message || 'Gagal menyimpan data anggota')
     }
-    closeModal()
   }
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (delId) {
-      setAnggota(anggota.filter(a => a._id !== delId))
-      setDelId(null)
-      alert('Anggota berhasil dihapus!')
+      try {
+        await api.delete(`/anggota/${delId}`)
+        fetchAnggota()
+        setDelId(null)
+      } catch (error) {
+        console.error('Error deleting anggota:', error)
+        alert('Gagal menghapus anggota')
+      }
     }
   }
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { authAPI } from '../api/auth'
+import api, { authAPI } from '../api/auth'
 import {
   LayoutDashboard, Users, Package, CreditCard, FileText,
   PiggyBank, TrendingUp, ArrowRight, CalendarDays, RefreshCw
@@ -10,40 +10,66 @@ const Dashboard = ({ user }) => {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const [ringkasan, setRingkasan] = useState({
+    totalAnggota: 0,
+    totalPaket: 0,
+    totalTarget: 0,
+    totalTerkumpul: 0,
+    totalBebas: 0,
+    lunas: 0,
+    belumLunas: 0,
+  })
+  const [recentPayments, setRecentPayments] = useState([])
+
   useEffect(() => {
-    const fetchProfile = async () => {
+    const fetchData = async () => {
       try {
-        const response = await authAPI.getProfile()
-        setProfile(response.user)
+        const [profileRes, rekapRes, payRes, tabunganRes, paketRes] = await Promise.all([
+          authAPI.getProfile().catch(() => ({ user: null })),
+          api.get('/pembayaran/rekap').catch(() => ({ data: { ringkasan: {} }})),
+          api.get('/pembayaran').catch(() => ({ data: { data: [] }})),
+          api.get('/tabungan-bebas').catch(() => ({ data: [] })),
+          api.get('/paket').catch(() => ({ data: { count: 0 }})),
+        ])
+        
+        setProfile(profileRes.user)
+        
+        const sumTabungan = Array.isArray(tabunganRes.data) 
+          ? tabunganRes.data.reduce((sum, t) => sum + (t.jumlah || 0), 0) 
+          : 0;
+
+        const summary = rekapRes.data?.ringkasan || {}
+        setRingkasan({
+          totalAnggota: summary.totalAnggota || 0,
+          totalPaket: paketRes.data?.count || 0,
+          totalTarget: summary.totalTagihan || 0,
+          totalTerkumpul: summary.totalTerkumpul || 0,
+          totalBebas: sumTabungan,
+          lunas: summary.jumlahLunas || 0,
+          belumLunas: (summary.totalAnggota || 0) - (summary.jumlahLunas || 0),
+        })
+        
+        const pays = Array.isArray(payRes?.data?.data) ? payRes.data.data : []
+        setRecentPayments(pays.slice(0, 5).map(p => ({
+          id: p._id,
+          nama: p.anggota?.nama || 'Unknown',
+          paket: p.paket?.nama || '-',
+          jumlah: p.jumlah,
+          tanggal: p.tanggal,
+          metode: p.metode
+        })))
       } catch (err) {
-        console.error('Failed to fetch profile:', err)
+        console.error('Failed to fetch dashboard data:', err)
       } finally {
         setLoading(false)
       }
     }
-    fetchProfile()
+    fetchData()
   }, [])
 
   const userData = profile || user
 
-  // Mock summary data
-  const ringkasan = {
-    totalAnggota: 48,
-    totalPaket: 5,
-    totalTarget: 36000000,
-    totalTerkumpul: 21500000,
-    totalBebas: 3250000,
-    lunas: 12,
-    belumLunas: 36,
-  }
 
-  const recentPayments = [
-    { id: 1, nama: 'Budi Santoso', paket: 'Paket Gold', jumlah: 250000, tanggal: '2026-03-28', metode: 'transfer' },
-    { id: 2, nama: 'Siti Rahayu', paket: 'Paket Silver', jumlah: 100000, tanggal: '2026-03-27', metode: 'tunai' },
-    { id: 3, nama: 'Ahmad Wijaya', paket: 'Paket Platinum', jumlah: 500000, tanggal: '2026-03-26', metode: 'transfer' },
-    { id: 4, nama: 'Dewi Lestari', paket: 'Nabung Bebas', jumlah: 75000, tanggal: '2026-03-25', metode: 'tunai' },
-    { id: 5, nama: 'Eko Prasetyo', paket: 'Paket Gold', jumlah: 250000, tanggal: '2026-03-24', metode: 'transfer' },
-  ]
 
   const rupiah = (n) =>
     new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(n)
@@ -51,7 +77,7 @@ const Dashboard = ({ user }) => {
   const tgl = (d) =>
     new Date(d).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
 
-  const pctCollected = Math.round((ringkasan.totalTerkumpul / ringkasan.totalTarget) * 100)
+  const pctCollected = ringkasan.totalTarget > 0 ? Math.round((ringkasan.totalTerkumpul / ringkasan.totalTarget) * 100) : 0
 
   const statCards = [
     { label: 'Total Anggota', value: ringkasan.totalAnggota, sub: 'orang terdaftar', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },

@@ -27,12 +27,18 @@ const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const healthRoutes = require('./routes/health');
 const paketRoutes = require('./routes/paket');
+const anggotaRoutes = require('./routes/anggota');
+const pembayaranRoutes = require('./routes/pembayaran');
+const tabunganBebasRoutes = require('./routes/tabunganBebas');
 
 // Use routes
 app.use('/api/auth', authRoutes);
 app.use('/api/auth', profileRoutes);
 app.use('/api', healthRoutes);
 app.use('/api/paket', paketRoutes);
+app.use('/api/anggota', anggotaRoutes);
+app.use('/api/pembayaran', pembayaranRoutes);
+app.use('/api/tabungan-bebas', tabunganBebasRoutes);
 
 // Start server
 app.listen(PORT, () => {
