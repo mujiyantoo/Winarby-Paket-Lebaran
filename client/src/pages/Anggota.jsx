@@ -20,8 +20,9 @@ export default function Anggota() {
   const fetchAnggota = async () => {
     setLoading(true)
     try {
-      const { data } = await api.get('/anggota')
-      setAnggota(data.data || data || [])
+      const res = await api.get('/anggota')
+      const arr = Array.isArray(res) ? res : (Array.isArray(res.data) ? res.data : [])
+      setAnggota(arr)
     } catch (error) {
       console.error('Error fetching anggota:', error)
     } finally {
