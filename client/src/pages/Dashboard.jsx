@@ -26,20 +26,20 @@ const Dashboard = ({ user }) => {
       try {
         const [profileRes, rekapRes, payRes, tabunganRes, paketRes] = await Promise.all([
           authAPI.getProfile().catch(() => ({ user: null })),
-          api.get('/pembayaran/rekap').catch(() => ({ data: { ringkasan: {} }})),
-          api.get('/pembayaran').catch(() => ({ data: { data: [] }})),
-          api.get('/tabungan-bebas').catch(() => ({ data: [] })),
-          api.get('/paket').catch(() => ({ data: { count: 0 }})),
+          api.get('/pembayaran/rekap').catch(() => ({ ringkasan: {}, data: [] })),
+          api.get('/pembayaran').catch(() => ({ data: [] })),
+          api.get('/tabungan-bebas').catch(() => ([])),
+          api.get('/paket').catch(() => ({ count: 0 })),
         ])
         
         setProfile(profileRes.user)
         
         const tabList = Array.isArray(tabunganRes) ? tabunganRes : (Array.isArray(tabunganRes?.data) ? tabunganRes.data : []);
         const sumTabungan = tabList.reduce((sum, t) => sum + (t.jumlah || 0), 0);
-        const summary = rekapRes.data?.ringkasan || {}
+        const summary = rekapRes.ringkasan || rekapRes.data?.ringkasan || {}
         setRingkasan({
           totalAnggota: summary.totalAnggota || 0,
-          totalPaket: paketRes.data?.count || 0,
+          totalPaket: paketRes.count || paketRes.data?.count || 0,
           totalTarget: summary.totalTagihan || 0,
           totalTerkumpul: summary.totalTerkumpul || 0,
           totalBebas: sumTabungan,
@@ -47,7 +47,7 @@ const Dashboard = ({ user }) => {
           belumLunas: (summary.totalAnggota || 0) - (summary.jumlahLunas || 0),
         })
         
-        const pays = Array.isArray(payRes?.data?.data) ? payRes.data.data : []
+        const pays = Array.isArray(payRes?.data) ? payRes.data : (Array.isArray(payRes?.data?.data) ? payRes.data.data : [])
         setRecentPayments(pays.slice(0, 5).map(p => ({
           id: p._id,
           nama: p.anggota?.nama || 'Unknown',
