@@ -19,8 +19,8 @@ mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB Connected Successfully'))
-.catch(err => console.error('MongoDB Connection Error:', err));
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.log(err));
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -32,32 +32,24 @@ const pembayaranRoutes = require('./routes/pembayaran');
 const tabunganBebasRoutes = require('./routes/tabunganBebas');
 const dataRoutes = require('./routes/data');
 
-// Use routes (Universal handling for /api prefix)
-const routes = [
-  ['/auth', authRoutes],
-  ['/auth', profileRoutes],
-  ['/paket', paketRoutes],
-  ['/anggota', anggotaRoutes],
-  ['/pembayaran', pembayaranRoutes],
-  ['/tabungan-bebas', tabunganBebasRoutes],
-  ['/data', dataRoutes],
-];
+// Use routes
+app.use('/api/auth', authRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/health', healthRoutes);
+app.use('/api/paket', paketRoutes);
+app.use('/api/anggota', anggotaRoutes);
+app.use('/api/pembayaran', pembayaranRoutes);
+app.use('/api/tabungan-bebas', tabunganBebasRoutes);
+app.use('/api/data', dataRoutes);
 
-routes.forEach(([path, handler]) => {
-  app.use(path, handler);          // Match without /api prefix
-  app.use('/api' + path, handler); // Match with /api prefix
+// Root route
+app.get('/', (req, res) => {
+  res.send('API is running...');
 });
 
-app.use('/health', healthRoutes);
-app.use('/api/health', healthRoutes);
+// Start server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
 
-// Export app for Vercel
 module.exports = app;
-
-// Start server (only if not on Vercel)
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Health check: http://localhost:${PORT}/api/health`);
-  });
-}

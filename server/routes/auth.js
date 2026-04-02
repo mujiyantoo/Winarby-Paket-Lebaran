@@ -15,8 +15,8 @@ const generateToken = (user) => {
 
 // Register endpoint
 router.post('/register', [
-  body('name').trim().notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Please enter a valid email'),
+  body('username').trim().notEmpty().withMessage('Username is required'),
+  body('nama').trim().notEmpty().withMessage('Name is required'),
   body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
 ], async (req, res) => {
   try {
@@ -26,16 +26,16 @@ router.post('/register', [
       return res.status(400).json({ errors: errors.array() });
     }
     
-    const { name, email, password } = req.body;
+    const { username, nama, password } = req.body;
     
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ username });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists with this email' });
+      return res.status(400).json({ message: 'User already exists with this username' });
     }
     
     // Create new user
-    const user = new User({ name, email, password });
+    const user = new User({ username, nama, password });
     await user.save();
     
     // Generate token
@@ -46,8 +46,9 @@ router.post('/register', [
       message: 'User registered successfully',
       user: {
         id: user._id,
-        name: user.name,
-        email: user.email,
+        username: user.username,
+        nama: user.nama,
+        role: user.role,
         createdAt: user.createdAt
       },
       token
@@ -60,7 +61,7 @@ router.post('/register', [
 
 // Login endpoint
 router.post('/login', [
-  body('email').isEmail().withMessage('Please enter a valid email'),
+  body('username').trim().notEmpty().withMessage('Username is required'),
   body('password').notEmpty().withMessage('Password is required')
 ], async (req, res) => {
   try {
@@ -70,10 +71,10 @@ router.post('/login', [
       return res.status(400).json({ errors: errors.array() });
     }
     
-    const { email, password } = req.body;
+    const { username, password } = req.body;
     
     // Find user
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ username });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -92,8 +93,9 @@ router.post('/login', [
       message: 'Login successful',
       user: {
         id: user._id,
-        name: user.name,
-        email: user.email,
+        username: user.username,
+        nama: user.nama,
+        role: user.role,
         createdAt: user.createdAt
       },
       token
