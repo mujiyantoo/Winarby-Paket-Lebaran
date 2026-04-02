@@ -22,8 +22,8 @@ export default function PaketPage() {
     setLoading(true)
     try {
       const response = await paketAPI.getAllPakets()
-      // axios returns response.data, and our backend returns { success: true, data: [...] }
-      const fetchedPakets = response?.data?.data || []
+      // axios returns response.data, and our backend returns { success: true, count: X, data: [...] }
+      const fetchedPakets = Array.isArray(response) ? response : (Array.isArray(response?.data) ? response.data : [])
       setPakets(fetchedPakets)
       setError('')
     } catch (err) {
